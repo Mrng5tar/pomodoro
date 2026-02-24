@@ -3,58 +3,109 @@
 import { useEffect, useRef, useState } from "react";
 
 const WORK_TIME = 20 * 60; // 20 minutes
-const SOUND_TIME = 30;    // 30 seconds
-const CYCLE_TIME = WORK_TIME + SOUND_TIME;
+const BREAK_TIME = 30;     // 30 seconds
+
+type Phase = "work" | "break";
 
 export default function PomodoroTimer() {
   const [running, setRunning] = useState(false);
   const [remaining, setRemaining] = useState(WORK_TIME);
+  const [phase, setPhase] = useState<Phase>("work");
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Load saved session
   useEffect(() => {
     const isRunning = localStorage.getItem("pomodoro-running") === "true";
     const startTime = localStorage.getItem("pomodoro-start-time");
+    const savedPhase = localStorage.getItem("pomodoro-phase") as Phase;
 
-    if (isRunning && startTime) {
+    if (isRunning && startTime && savedPhase) {
       setRunning(true);
-      calculateRemaining(Number(startTime));
+      setPhase(savedPhase);
+      calculateRemaining(Number(startTime), savedPhase);
     }
   }, []);
 
-  // Tick every second
+  // Timer loop
   useEffect(() => {
     if (!running) return;
 
     const interval = setInterval(() => {
-      const start = Number(
+      const startTime = Number(
         localStorage.getItem("pomodoro-start-time")
       );
-      calculateRemaining(start);
+      const savedPhase = localStorage.getItem("pomodoro-phase") as Phase;
+
+      calculateRemaining(startTime, savedPhase);
     }, 1000);
 
     return () => clearInterval(interval);
   }, [running]);
 
-  function calculateRemaining(startTime: number) {
+  function calculateRemaining(startTime: number, currentPhase: Phase) {
     const now = Date.now();
     const elapsed = Math.floor((now - startTime) / 1000);
-    const position = elapsed % CYCLE_TIME;
 
-    if (position < WORK_TIME) {
-      setRemaining(WORK_TIME - position);
-    } else {
-      setRemaining(SOUND_TIME - (position - WORK_TIME));
-      audioRef.current?.play();
+    if (currentPhase === "work") {
+      const timeLeft = WORK_TIME - elapsed;
+
+      if (timeLeft <= 0) {
+        // Switch to break
+        switchToBreak();
+      } else {
+        setRemaining(timeLeft);
+      }
+    }
+
+    if (currentPhase === "break") {
+      const timeLeft = BREAK_TIME - elapsed;
+
+      if (timeLeft <= 0) {
+        // Switch back to work
+        switchToWork();
+      } else {
+        setRemaining(timeLeft);
+      }
+    }
+  }
+
+  function switchToBreak() {
+    setPhase("break");
+    localStorage.setItem("pomodoro-phase", "break");
+    localStorage.setItem("pomodoro-start-time", Date.now().toString());
+    setRemaining(BREAK_TIME);
+
+    // Play sound once
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play();
+    }
+  }
+
+  function switchToWork() {
+    setPhase("work");
+    localStorage.setItem("pomodoro-phase", "work");
+    localStorage.setItem("pomodoro-start-time", Date.now().toString());
+    setRemaining(WORK_TIME);
+
+    // Stop sound if still playing
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
     }
   }
 
   function startSession() {
     localStorage.setItem("pomodoro-running", "true");
+    localStorage.setItem("pomodoro-phase", "work");
     localStorage.setItem(
       "pomodoro-start-time",
       Date.now().toString()
     );
+
+    setPhase("work");
+    setRemaining(WORK_TIME);
     setRunning(true);
   }
 
@@ -63,16 +114,27 @@ export default function PomodoroTimer() {
 
     localStorage.removeItem("pomodoro-running");
     localStorage.removeItem("pomodoro-start-time");
+    localStorage.removeItem("pomodoro-phase");
+
     setRunning(false);
+    setPhase("work");
     setRemaining(WORK_TIME);
+
+    // 🔴 Stop audio immediately
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
   }
 
   const minutes = Math.floor(remaining / 60);
   const seconds = remaining % 60;
 
   return (
-    <div className="bg-white w-[360px] p-10 rounded-2xl shadow-xl text-center">
-      <h1 className="text-3xl font-bold mb-4">Pomodoro Focus</h1>
+    <div className="bg-white w-[380px] p-10 rounded-2xl shadow-xl text-center">
+      <h1 className="text-3xl font-bold mb-2">
+        {phase === "work" ? "Focus Time" : "Break Time"}
+      </h1>
 
       <div className="text-6xl font-mono mb-8">
         {String(minutes).padStart(2, "0")}:
@@ -95,7 +157,7 @@ export default function PomodoroTimer() {
         </button>
       )}
 
-      <audio ref={audioRef} src="/bell.mp3" preload="auto" />
+      <audio ref={audioRef} src="/one_piece.mp3" preload="auto" />
     </div>
   );
 }
