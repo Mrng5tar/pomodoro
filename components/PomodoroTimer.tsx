@@ -131,7 +131,7 @@ export default function PomodoroTimer() {
   const seconds = remaining % 60;
 
   return (
-    <div className="bg-white w-[380px] p-10 rounded-2xl shadow-xl text-center">
+    <div className="bg-neutral-800 w-[380px] p-10 rounded-2xl shadow-xl text-center">
       <h1 className="text-3xl font-bold mb-2">
         {phase === "work" ? "Focus Time" : "Break Time"}
       </h1>
@@ -144,7 +144,7 @@ export default function PomodoroTimer() {
       {!running ? (
         <button
           onClick={startSession}
-          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg w-full"
+          className="bg-green-800 hover:bg-green-900 hover:cursor-pointer text-white px-6 py-3 rounded-lg w-full"
         >
           Start Session
         </button>
