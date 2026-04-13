@@ -151,7 +151,7 @@ export default function PomodoroTimer() {
       ) : (
         <button
           onClick={endSession}
-          className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg w-full"
+          className="bg-red-800 hover:bg-red-900 text-white px-6 py-3 rounded-lg w-full hover:cursor-pointer"
         >
           End Session
         </button>
