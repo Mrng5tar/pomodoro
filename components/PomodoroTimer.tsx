@@ -158,7 +158,7 @@ export default function PomodoroTimer() {
       )}
 
       {phase === "work" && <button onClick={switchToBreak}
-          className="bg-blue-800 hover:bg-blue-900 text-white px-6 py-3 rounded-lg w-full hover:cursor-pointer mt-4">Take a break</button>}
+          className="bg-green-800 hover:bg-green-900 text-white px-6 py-3 rounded-lg w-full hover:cursor-pointer mt-4">Take a break</button>}
 
       <audio ref={audioRef} src="/one_piece.mp3" preload="auto" />
     </div>
