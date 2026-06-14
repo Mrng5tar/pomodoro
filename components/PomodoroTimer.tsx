@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 const WORK_TIME = 20 * 60; // 20 minutes
@@ -131,7 +132,16 @@ export default function PomodoroTimer() {
   const seconds = remaining % 60;
 
   return (
-    <div className="bg-neutral-800 w-[380px] p-10 rounded-2xl shadow-xl text-center">
+    <div className="w-[380px] p-10 rounded-2xl shadow-xl text-center bg-black/50">
+
+      <div className="bg-white w-screen h-screen absolute top-0 left-0 -z-40">
+        {!running && (<Image src={"/home.png"} width={1920} height={1080} className="object-cover w-full h-full" alt="home image"/>)}
+
+        {running && phase === "work" && (<Image src={"/work.png"} width={1920} height={1080} className="object-cover w-full h-full" alt="work image"/>)}
+
+        {running && phase === "break" && (<Image src={"/break.png"} width={1920} height={1080} className="object-cover w-full h-full" alt="work image"/>)}
+      </div>
+
       <h1 className="text-3xl font-bold mb-2">
         {phase === "work" ? "Focus Time" : "Break Time"}
       </h1>

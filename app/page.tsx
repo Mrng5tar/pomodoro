@@ -3,7 +3,7 @@ import PomodoroTimer from "@/components/PomodoroTimer";
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-neutral-900">
+    <main className="min-h-screen flex items-center justify-center">
       <PomodoroTimer />
     </main>
   );
