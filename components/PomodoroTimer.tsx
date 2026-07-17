@@ -18,11 +18,12 @@ export default function PomodoroTimer() {
   const [phase, setPhase] = useState<Phase>("work");
   const [showImage, setShowImage] = useState(true)
   const cardRef = useRef(null)
+  const [mounted, setMounted] = useState(false)
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const walkAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  if (!sessionStorage.getItem("session-start-time")) {
+  if (mounted && !sessionStorage.getItem("session-start-time")) {
   sessionStorage.setItem(
     "session-start-time",
     Date.now().toString()
@@ -45,7 +46,7 @@ export default function PomodoroTimer() {
 
   // Timer loop
   useEffect(() => {
-
+    
     if (!running) return;
 
     const interval = setInterval(() => {
@@ -85,6 +86,9 @@ export default function PomodoroTimer() {
     return () => clearInterval(interval);
   }, [running]);
 
+  useEffect(()=>{
+    setMounted(true)
+  },[])
 
   function calculateRemaining(startTime: number, currentPhase: Phase) {
     const now = Date.now();
